@@ -4,6 +4,7 @@ require('dotenv').config();
 const upload = require('./middleware/upload');
 const extractTextFromPDF = require('./services/pdfExtractor');
 const extractTextFromImage = require('./services/ocrExtractor');
+const generateSummary = require('./services/summarizer');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -36,6 +37,22 @@ app.post('/api/upload', upload.single('document'), async (req, res) => {
     });
   } catch (err) {
     return res.status(422).json({ error: err.message });
+  }
+});
+
+app.post('/api/summarize', express.json(), async (req, res) => {
+  const { text, length } = req.body;
+
+  if (!text || typeof text !== 'string') {
+    return res.status(400).json({ error: 'No text provided to summarize.' });
+  }
+
+  try {
+    const result = await generateSummary(text, length);
+    return res.json(result);
+  } catch (err) {
+    console.error('Summarization error:', err.message);
+    return res.status(502).json({ error: 'AI summarization failed. Please try again.' });
   }
 });
 
