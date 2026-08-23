@@ -3,6 +3,7 @@
 A web app that extracts text from PDFs and scanned images, then generates an AI-powered summary with key points.
 
 **Live app:** https://document-summary-assistant-blond.vercel.app/
+
 **Backend API:** https://document-summary-assistant-r8r0.onrender.com
 
 ## My Approach
