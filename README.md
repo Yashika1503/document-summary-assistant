@@ -5,6 +5,14 @@ A web app that extracts text from PDFs and scanned images, then generates an AI-
 **Live app:** https://document-summary-assistant-blond.vercel.app/
 **Backend API:** https://document-summary-assistant-r8r0.onrender.com
 
+## My Approach
+
+For this assessment I built a document summarizer with a React/Vite frontend and a Node/Express backend talking over a REST API. Users drop in a PDF or scanned image, and the backend pulls out the text — pdf-parse handles PDFs, and Tesseract.js does OCR for images. One thing I ran into early was OCR confidently "reading" text out of photos that had none at all, so I added a confidence-score check to filter that out rather than trusting any non-empty result.
+
+The extracted text goes to the Gemini API with a prompt asking for structured JSON (a summary plus key points), and if the model doesn't return clean JSON, I fall back to showing the raw text instead of failing the request outright — I wanted the app to degrade gracefully rather than break on edge cases.
+
+Given the 8-hour scope, I focused on making the core flow solid rather than adding extra features: proper error handling at every step, a partial-success state that keeps extracted text even if summarization fails, and a UI that's usable on mobile with both light and dark themes. Deployed the frontend on Vercel and backend on Render, with environment variables handling the API keys and endpoint config.
+
 ## Features
 
 - Upload PDFs or scanned images (JPG/PNG) via drag-and-drop or file picker
