@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import ThemeToggle from './components/ThemeToggle';
 import UploadZone from './components/UploadZone';
 import { uploadDocument } from './services/api';
 import SummaryResult from './components/SummaryResult';
@@ -10,6 +11,16 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  function toggleTheme() {
+    setTheme((t) => (t === 'light' ? 'dark' : 'light'));
+  }
 
   function handleFileSelect(selectedFile, errorMsg) {
     setError(errorMsg);
@@ -41,8 +52,11 @@ export default function App() {
   return (
     <div className="app">
       <header className="app__header">
-        <h1>Document Summary Assistant</h1>
-        <p>Upload a PDF or scanned image to get an instant summary.</p>
+        <div>
+          <h1>Document Summary Assistant</h1>
+          <p>Upload a PDF or scanned image to get an instant summary.</p>
+        </div>
+        <ThemeToggle theme={theme} onToggle={toggleTheme} />
       </header>
 
       {!result && (
