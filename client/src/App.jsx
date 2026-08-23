@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import UploadZone from './components/UploadZone';
 import { uploadDocument } from './services/api';
+import SummaryResult from './components/SummaryResult';
 import './App.css';
 
 export default function App() {
@@ -31,6 +32,12 @@ export default function App() {
     }
   }
 
+  function handleReset() {
+  setFile(null);
+  setResult(null);
+  setError(null);
+  }
+
   return (
     <div className="app">
       <header className="app__header">
@@ -38,33 +45,37 @@ export default function App() {
         <p>Upload a PDF or scanned image to get an instant summary.</p>
       </header>
 
-      <UploadZone onFileSelect={handleFileSelect} selectedFile={file} />
+      {!result && (
+        <>
+          <UploadZone onFileSelect={handleFileSelect} selectedFile={file} />
 
-      {error && <div className="app__error">{error}</div>}
+          {error && <div className="app__error">{error}</div>}
 
-      <div className="app__controls">
-        <label htmlFor="length-select">Summary length</label>
-        <select
-          id="length-select"
-          value={length}
-          onChange={(e) => setLength(e.target.value)}
-        >
-          <option value="short">Short</option>
-          <option value="medium">Medium</option>
-          <option value="long">Long</option>
-        </select>
+          <div className="app__controls">
+            <label htmlFor="length-select">Summary length</label>
+            <select
+              id="length-select"
+              value={length}
+              onChange={(e) => setLength(e.target.value)}
+            >
+              <option value="short">Short</option>
+              <option value="medium">Medium</option>
+              <option value="long">Long</option>
+            </select>
 
-        <button
-          onClick={handleSummarize}
-          disabled={!file || loading}
-          className="app__submit"
-        >
-          {loading ? 'Summarizing…' : 'Summarize'}
-        </button>
-      </div>
+            <button
+              onClick={handleSummarize}
+              disabled={!file || loading}
+              className="app__submit"
+            >
+              {loading ? 'Summarizing…' : 'Summarize'}
+            </button>
+          </div>
+        </>
+      )}
 
       {result && (
-        <pre className="app__result-debug">{JSON.stringify(result, null, 2)}</pre>
+        <SummaryResult result={result} onReset={handleReset} />
       )}
     </div>
   );
