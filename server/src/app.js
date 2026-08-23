@@ -3,6 +3,7 @@ const cors = require('cors');
 require('dotenv').config();
 const upload = require('./middleware/upload');
 const extractTextFromPDF = require('./services/pdfExtractor');
+const extractTextFromImage = require('./services/ocrExtractor');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -20,19 +21,18 @@ app.post('/api/upload', upload.single('document'), async (req, res) => {
   }
 
   try {
+    let text;
+
     if (req.file.mimetype === 'application/pdf') {
-      const text = await extractTextFromPDF(req.file.buffer);
-      return res.json({
-        filename: req.file.originalname,
-        mimetype: req.file.mimetype,
-        extractedText: text,
-      });
+      text = await extractTextFromPDF(req.file.buffer);
+    } else {
+      text = await extractTextFromImage(req.file.buffer);
     }
 
     return res.json({
-      message: 'File received (OCR not yet implemented)',
       filename: req.file.originalname,
       mimetype: req.file.mimetype,
+      extractedText: text,
     });
   } catch (err) {
     return res.status(422).json({ error: err.message });
