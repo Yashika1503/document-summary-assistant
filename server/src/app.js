@@ -21,6 +21,8 @@ app.post('/api/upload', upload.single('document'), async (req, res) => {
     return res.status(400).json({ error: 'No file uploaded.' });
   }
 
+  const length = req.body.length || 'medium';
+
   try {
     let text;
 
@@ -30,10 +32,29 @@ app.post('/api/upload', upload.single('document'), async (req, res) => {
       text = await extractTextFromImage(req.file.buffer);
     }
 
+    let summaryResult;
+    try {
+      summaryResult = await generateSummary(text, length);
+    } catch (summaryErr) {
+      console.error('Summarization error:', summaryErr.message);
+      // Extraction succeeded even though summarization failed —
+      // return the text so the user isn't left with nothing.
+      return res.status(207).json({
+        filename: req.file.originalname,
+        mimetype: req.file.mimetype,
+        extractedText: text,
+        summary: null,
+        keyPoints: [],
+        warning: 'Text was extracted, but AI summarization failed. You can try again.',
+      });
+    }
+
     return res.json({
       filename: req.file.originalname,
       mimetype: req.file.mimetype,
       extractedText: text,
+      summary: summaryResult.summary,
+      keyPoints: summaryResult.keyPoints,
     });
   } catch (err) {
     return res.status(422).json({ error: err.message });
