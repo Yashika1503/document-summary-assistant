@@ -10,12 +10,23 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://your-actual-vercel-url.vercel.app',
+  'https://document-summary-assistant-blond.vercel.app/',
 ];
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: (origin, callback) => {
+    if (
+      !origin ||
+      allowedOrigins.includes(origin) ||
+      /^https:\/\/document-summary-assistant-.*\.vercel\.app$/.test(origin)
+    ) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
 }));
+
 app.use(express.json());
 
 app.get('/api/health', (req, res) => {
